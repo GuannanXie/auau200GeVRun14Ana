@@ -56,12 +56,19 @@ namespace anaCuts
 
    float const RapidityCut = 1.0;
    //D0 candidate cut// Ultimate2
-   float const dcaV0ToPv[nPtBins] = {0.0061, 0.0049, 0.0038, 0.0038, 0.0040};
-   float const decayLength[nPtBins] = {0.0145, 0.0181, 0.0212, 0.0247, 0.0259};
+   // float const dcaV0ToPv[nPtBins] = {0.0061, 0.0049, 0.0038, 0.0038, 0.0040};
+   // float const decayLength[nPtBins] = {0.0145, 0.0181, 0.0212, 0.0247, 0.0259};
+   // float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};//0.995
+   // float const dcaDaughters[nPtBins] = {0.0084, 0.0066, 0.0057, 0.0050, 0.0060}; //0.0050;
+   // float const kDca[nPtBins] = {0.0103, 0.0091, 0.0095, 0.0079, 0.0058};//0.008, // minimum
+   // float const pDca[nPtBins] = {0.0110, 0.0111, 0.0086, 0.0081, 0.0062};//0.008
+
+   float const dcaV0ToPv[nPtBins] = {0.0072, 0.0072, 0.0072, 0.0072, 0.0072};
+   float const decayLength[nPtBins] = {0.0105, 0.0105, 0.0105, 0.0105, 0.0105};
    float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};//0.995
    float const dcaDaughters[nPtBins] = {0.0084, 0.0066, 0.0057, 0.0050, 0.0060}; //0.0050;
-   float const kDca[nPtBins] = {0.0103, 0.0091, 0.0095, 0.0079, 0.0058};//0.008, // minimum
-   float const pDca[nPtBins] = {0.0110, 0.0111, 0.0086, 0.0081, 0.0062};//0.008
+   float const kDca[nPtBins] = {0.0080, 0.0080, 0.0080, 0.0080, 0.0080};//0.008, // minimum
+   float const pDca[nPtBins] = {0.0080, 0.0080, 0.0080, 0.0080, 0.0080};//0.008
 
    //D0 candidate cut// Ultimate1
 //   float const dcaV0ToPv[nPtBins] = {0.0062, 0.0047, 0.0040, 0.0041, 0.0042};
