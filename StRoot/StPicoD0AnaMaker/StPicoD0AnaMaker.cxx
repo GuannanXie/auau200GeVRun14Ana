@@ -69,7 +69,7 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
    // -------------- USER VARIABLES -------------------------
-   mHists = new StPicoD0AnaHists(mOutFileBaseName,mFillQaHists);
+   mHists = new StPicoD0AnaHists(mOutFileBaseName, mFillQaHists);
 
    return kStOK;
 }
@@ -117,107 +117,107 @@ Int_t StPicoD0AnaMaker::Make()
 
    if (!mGRefMultCorrUtil)
    {
-     LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
-     return kStWarn;
+      LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
+      return kStWarn;
    }
 
    if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
    {
-     //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
-     return kStOK;
+      //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
+      return kStOK;
    }
 
-   if(!isGoodTrigger(picoDst->event()))
+   if (isGoodTrigger(picoDst->event()))
    {
-     mHists->addEventBeforeCut(picoDst->event());
+      mHists->addEventBeforeCut(picoDst->event());
 
-     StThreeVectorF pVtx = picoDst->event()->primaryVertex();
-     if (isGoodEvent(picoDst->event(),pVtx))
-     {
-       TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
-       mHists->addEvent(picoDst->event());
+      StThreeVectorF pVtx = picoDst->event()->primaryVertex();
+      if (isGoodEvent(picoDst->event(), pVtx))
+      {
+         TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
+         mHists->addEvent(picoDst->event());
 
-       mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
+         mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
 
-       int centrality  = mGRefMultCorrUtil->getCentralityBin9();
-       const double reweight = mGRefMultCorrUtil->getWeight();
-       const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
-       mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+         int centrality  = mGRefMultCorrUtil->getCentralityBin9();
+         const double reweight = mGRefMultCorrUtil->getWeight();
+         const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
+         mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
 
-       //Basiclly add some QA plots
-       UInt_t nTracks = picoDst->numberOfTracks();
+         //Basiclly add some QA plots
+         UInt_t nTracks = picoDst->numberOfTracks();
 
-       if(mFillQaHists)
-       {
-         for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
+         if (mFillQaHists)
          {
-           StPicoTrack const* trk = picoDst->track(iTrack);
-           if (!trk) continue;
-           StPhysicalHelixD helix = trk->helix();
-           float dca = float(helix.geometricSignedDistance(pVtx));
-           StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
+            for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
+            {
+               StPicoTrack const* trk = picoDst->track(iTrack);
+               if (!trk) continue;
+               StPhysicalHelixD helix = trk->helix();
+               float dca = float(helix.geometricSignedDistance(pVtx));
+               StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
 
-           if (!isGoodQaTrack(trk, momentum, dca)) continue;
+               if (!isGoodQaTrack(trk, momentum, dca)) continue;
 
-           StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
-           float dcaZ = dcaPoint.z() - pVtx.z();
-           double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
+               StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
+               float dcaZ = dcaPoint.z() - pVtx.z();
+               double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
 
-           bool tpcPion = isTpcPion(trk);
-           bool tpcKaon = isTpcKaon(trk);
-           float pBeta = getTofBeta(trk, pVtx);
-           float kBeta = pBeta;
-           bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
-           bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-           bool tofPion = isTofPion(trk, pBeta, pVtx);
-           bool tofKaon = isTofKaon(trk, kBeta, pVtx);
+               bool tpcPion = isTpcPion(trk);
+               bool tpcKaon = isTpcKaon(trk);
+               float pBeta = getTofBeta(trk, pVtx);
+               float kBeta = pBeta;
+               bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+               bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+               bool tofPion = isTofPion(trk, pBeta, pVtx);
+               bool tofKaon = isTofKaon(trk, kBeta, pVtx);
 
-           bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
-           bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
-           // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
+               bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
+               bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
+               // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
 
-           if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ))
-           {
-             mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
-           }
-           if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon ))
-           {
-             mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
-           }
-           if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
-           {
-             mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
-           }
-         } // .. end tracks loop
-       }
+               if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon))
+               {
+                  mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
+               }
+               if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon))
+               {
+                  mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
+               }
+               if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
+               {
+                  mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
+               }
+            } // .. end tracks loop
+         }
 
-       for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
-       {
-         StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
+         for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+         {
+            StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
-         if (!isGoodPair(kp)) continue;
+            if (!isGoodPair(kp)) continue;
 
-         StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
-         StPicoTrack const* pion = picoDst->track(kp->pionIdx());
+            StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
+            StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-         if (!isGoodTrack(kaon, pVtx) || !isGoodTrack(pion, pVtx)) continue;
+            if (!isGoodTrack(kaon, pVtx) || !isGoodTrack(pion, pVtx)) continue;
 
-         // PID
-         if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
-         float pBeta = getTofBeta(pion, pVtx);
-         float kBeta = getTofBeta(kaon, pVtx);
-         bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
-         bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
-         bool tof = tofPion && tofKaon;
+            // PID
+            if (!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
+            float pBeta = getTofBeta(pion, pVtx);
+            float kBeta = getTofBeta(kaon, pVtx);
+            bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+            bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+            bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
+            bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
+            bool tof = tofPion && tofKaon;
 
-         bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+            bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
 
-         mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+            mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
-       } // end of kaonPion loop
-     } // end of isGoodEvent
+         } // end of kaonPion loop
+      } // end of isGoodEvent
    } // end of isGoodTrigger
 
    return kStOK;
@@ -243,12 +243,12 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVe
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrigger(StPicoEvent const* const picoEvent) const
 {
-  for(auto trg: anaCuts::triggers)
-  {
-    if(picoEvent->isTrigger(trg)) return true;
-  }
+   for (auto trg : anaCuts::triggers)
+   {
+      if (picoEvent->isTrigger(trg)) return true;
+   }
 
-  return false;
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const& momentum, double const dca) const
