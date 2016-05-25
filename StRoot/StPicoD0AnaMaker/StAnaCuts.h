@@ -41,7 +41,7 @@ namespace anaCuts
    int   const nPtBins = 5;
    float const PtBinsEdge[nPtBins+1] = {0., 1., 2., 3., 5., 15.};//this is for optimaized cut
 
-   float const minPt = 0.6;//1.2
+   float const minPt = 0.3;//1.2
    int const nHitsFit = 20;
 
    //track eta cut
@@ -90,15 +90,16 @@ namespace anaCuts
    int const nVzsDca = 4;
    float const VzEdgeDca[nVzsDca + 1] = { -6., -3., 0, 3., 6.};
 
-   int const nCentsDca = 1;
-   float const CentEdgeDca[nCentsDca + 1] = { -1.5, 8.5};
+   int const nCentsDca = 9;
+   float const CentEdgeDca[nCentsDca + 1] = {-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5};
 
    int const nZdcxs = 11;
    float const ZdcxEdge[nZdcxs + 1] = {0., 10., 20., 30., 35., 40., 45., 50., 55., 60., 80., 100.0 };
 
-   int const nPtsDca = 17;
+   int const nPtsDca = 21;
    float const PtEdgeDca[nPtsDca + 1] =
    {
+      0.2, 0.3, 0.4, 0.5, 
       0.6,  0.7 , 0.8 , 0.9 ,
       1. , 1.25 , 1.5 , 1.75 , 2.  , 2.25 , 2.5 , 2.75 , 3.0 , 3.5,
       // 3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0
@@ -121,9 +122,10 @@ namespace anaCuts
    int const nCentsRatio = 10;
    float const CentEdgeRatio[nCentsRatio + 1] = { -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5};
 
-   int const nPtsRatio = 46;
+   int const nPtsRatio = 50;
    float const PtEdgeRatio[nPtsRatio + 1] =
    {
+      0.2, 0.3, 0.4, 0.5,
       0.6 , 0.7 , 0.8 , 0.9 ,
       1. , 1.1 , 1.2 , 1.3 , 1.4 , 1.5 , 1.6 , 1.7 , 1.8 , 1.9 ,
       2. , 2.2 , 2.4 , 2.6 , 2.8 , 3.0 , 3.2 , 3.4 , 3.6 , 3.8 ,
