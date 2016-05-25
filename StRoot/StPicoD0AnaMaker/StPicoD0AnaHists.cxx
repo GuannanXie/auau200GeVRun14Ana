@@ -43,10 +43,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
          {
             for (int iCent = 0; iCent < anaCuts::nCentsDca; iCent++)
             {
-               for (int iPhi = 0; iPhi < anaCuts::nPhisDca; iPhi++)
-               {
-                  mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent][iPhi] = NULL;
-               }
+               mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent] = NULL;
             }
          }
       }
@@ -126,10 +123,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
          {
             for (int iCent = 0; iCent < anaCuts::nCentsDca; iCent++)
             {
-               for (int iPhi = 0; iPhi < anaCuts::nPhisDca; iPhi++)
-               {
-                  mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent][iPhi]  = new TH3F(Form("mh3DcaXyZPtCentPartEtaVzPhi_%d_%d_%d_%d_%d", iParticle, iEta, iVz, iCent, iPhi), Form("mh3DcaXyZPt_%s_Eta%2.1f_Vz%2.1f_Cent%2.1f_Phi%2.1f;p_{T}(GeV/c);DcaXy(cm);DcaZ(cm)", anaCuts::ParticleName[iParticle], anaCuts::EtaEdgeDca[iEta], anaCuts::VzEdgeDca[iVz], anaCuts::CentEdgeDca[iCent], anaCuts::PhiEdgeDca[iPhi]), anaCuts::nPtsDca, anaCuts::PtEdgeDca, anaCuts::nDcasDca, anaCuts::DcaEdgeDca, anaCuts::nDcasDca, anaCuts::DcaEdgeDca); //Dca 1.cm
-               }
+               mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent]  = new TH3F(Form("mh3DcaXyZPtCentPartEtaVzPhi_%d_%d_%d_%d", iParticle, iEta, iVz, iCent), Form("mh3DcaXyZPt_%s_Eta%2.1f_Vz%2.1f_Cent%2.1f;p_{T}(GeV/c);DcaXy(cm);DcaZ(cm)", anaCuts::ParticleName[iParticle], anaCuts::EtaEdgeDca[iEta], anaCuts::VzEdgeDca[iVz], anaCuts::CentEdgeDca[iCent]), anaCuts::nPtsDca, anaCuts::PtEdgeDca, anaCuts::nDcasDca, anaCuts::DcaEdgeDca, anaCuts::nDcasDca, anaCuts::DcaEdgeDca); //Dca 1.cm
             }
          }
       }
@@ -242,19 +236,18 @@ void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsP
    }
 
    int EtaIndex = getEtaIndexDca(Eta);
-   int PhiIndex = getPhiIndexDca(Phi);
+   // int PhiIndex = getPhiIndexDca(Phi);
    int VzIndex = getVzIndexDca(Vz);
 
-   if (centrality < 7) return; // Only analysis 0-10% dor DCA, memory Issue
-   centrality = -1;
+   if (centrality < 0) return; // remove bad centrality, only keep 9 centralities
 
    if (IsPion)
    {
-      mh3DcaXyZPtCentPartEtaVzPhi[0][EtaIndex][VzIndex][centrality + 1][PhiIndex]->Fill(pt, dcaXy, dcaZ);
+      mh3DcaXyZPtCentPartEtaVzPhi[0][EtaIndex][VzIndex][centrality]->Fill(pt, dcaXy, dcaZ);
    }
    if (IsKaon)
    {
-      mh3DcaXyZPtCentPartEtaVzPhi[1][EtaIndex][VzIndex][centrality + 1][PhiIndex]->Fill(pt, dcaXy, dcaZ);
+      mh3DcaXyZPtCentPartEtaVzPhi[1][EtaIndex][VzIndex][centrality]->Fill(pt, dcaXy, dcaZ);
    }
    mh3DcaPtCent->Fill(pt, centrality, dca);
    mh3DcaXyPtCent->Fill(pt, centrality, dcaXy);
@@ -380,10 +373,7 @@ void StPicoD0AnaHists::closeFile()
          {
             for (int iCent = 0; iCent < anaCuts::nCentsDca; iCent++)
             {
-               for (int iPhi = 0; iPhi < anaCuts::nPhisDca; iPhi++)
-               {
-                  mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent][iPhi]->Write();
-               }
+               mh3DcaXyZPtCentPartEtaVzPhi[iParticle][iEta][iVz][iCent]->Write();
             }
          }
       }

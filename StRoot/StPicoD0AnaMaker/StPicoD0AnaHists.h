@@ -12,8 +12,8 @@
  */
 
 #include "StAnaCuts.h"
-#include "THnSparse.h" 
-#include "THn.h" 
+#include "THnSparse.h"
+#include "THn.h"
 
 class TH1F;
 class TH2F;
@@ -28,12 +28,12 @@ class TNtuple;
 
 class StPicoD0AnaHists
 {
-  public:
-   StPicoD0AnaHists(TString fileBaseName,bool fillQaHists=true);
+public:
+   StPicoD0AnaHists(TString fileBaseName, bool fillQaHists = true);
    virtual ~StPicoD0AnaHists();
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
-   void addCent(const double refmultCor,int centrality, const double reweight, const float vz);
+   void addCent(const double refmultCor, int centrality, const double reweight, const float vz);
    void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
    void addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
@@ -48,8 +48,8 @@ class StPicoD0AnaHists
    int getVzIndexRatio(float Vz) ;
    void closeFile();
 
-  private:
-   StPicoD0AnaHists(){}
+private:
+   StPicoD0AnaHists() {}
 
    bool mFillQaHists;
    StPicoPrescales* mPrescales;
@@ -106,8 +106,8 @@ class StPicoD0AnaHists
    TH2F* mh2Tpc1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasRatio][anaCuts::nVzsRatio][anaCuts::nPhisRatio];
    TH2F* mh2HFT1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasRatio][anaCuts::nVzsRatio][anaCuts::nPhisRatio];
 
-   //HFT Dca 
-   TH3F* mh3DcaXyZPtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasDca][anaCuts::nVzsDca][anaCuts::nCentsDca][anaCuts::nPhisDca];
+   //HFT Dca
+   TH3F* mh3DcaXyZPtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasDca][anaCuts::nVzsDca][anaCuts::nCentsDca];
 
    TH3F* mh3DcaPtCent;
    TH3F* mh3DcaXyPtCent;
