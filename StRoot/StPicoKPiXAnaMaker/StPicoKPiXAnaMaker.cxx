@@ -357,7 +357,7 @@ bool StPicoKPiXAnaMaker::isGoodKPiX(StPicoKPiX const* const kpx, kPiXAnaCuts::To
   return cos(kpx->pointingAngle()) > cuts.cosTheta[tmpIndex] &&
          kpx->pionDca() > cuts.pDca[tmpIndex] &&
          kpx->kaonDca() > cuts.kDca[tmpIndex] &&
-         kpx->xaonDca() > cuts.pDca[tmpIndex] &&
+         kpx->xaonDca() > cuts.xDca[tmpIndex] &&
          kpx->dcaDaughters() < cuts.dcaDaughters[tmpIndex] &&
          kpx->decayLength() > cuts.decayLength[tmpIndex] &&
          fabs(fMom.rapidity()) < cuts.rapidityCut &&
