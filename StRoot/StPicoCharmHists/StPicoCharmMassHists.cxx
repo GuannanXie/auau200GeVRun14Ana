@@ -41,8 +41,8 @@ StPicoCharmMassHists::StPicoCharmMassHists(std::string fileBaseName, std::string
    mh2CentVz        = new TH2F("mh2CentVz", "CentralityVsVz;cent;Vz", 10, -1.5, 8.5, 200, -10, 10);
    mh2CentVzWg      = new TH2F("mh2CentVzWg", "CentralityVsVzWg;cent;Vz", 10, -1.5, 8.5, 200, -10, 10);
 
-   mh3InvariantMassVsPtVsCent    = new TH3F("mh3InvariantMassVsPtVsCent", "invariantMassVsPtVsCent;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 150, 0, 15, 10, -1.5, 8.5, 100, 1.6, 2.6);
-   mh3InvariantMassVsPtVsCentBkg = new TH3F("mh3InvariantMassVsPtVsCentBkg", "invariantMassVsPtVsCentBkg;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 150, 0, 15, 10, -1.5, 8.5, 100, 1.6, 2.6);
+   mh3InvariantMassVsPtVsCent    = new TH3F("mh3InvariantMassVsPtVsCent", "invariantMassVsPtVsCent;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 150, 0, 15, 10, -1.5, 8.5, 200, 1.6, 2.6);
+   mh3InvariantMassVsPtVsCentBkg = new TH3F("mh3InvariantMassVsPtVsCentBkg", "invariantMassVsPtVsCentBkg;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 150, 0, 15, 10, -1.5, 8.5, 200, 1.6, 2.6);
 }
 
 StPicoCharmMassHists::~StPicoCharmMassHists()
