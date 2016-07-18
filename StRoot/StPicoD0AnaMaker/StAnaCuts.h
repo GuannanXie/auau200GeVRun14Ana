@@ -63,6 +63,11 @@ namespace anaCuts
    float const kDca[nPtBins] = {0.0103, 0.0091, 0.0095, 0.0079, 0.0058};//0.008, // minimum
    float const pDca[nPtBins] = {0.0110, 0.0111, 0.0086, 0.0081, 0.0062};//0.008
 
+   // Background Trees Mass Ranges
+   std::pair<float,float> const sideBandMassRange0{1.76,1.81};
+   std::pair<float,float> const sideBandMassRange1{1.92,1.97};
+   std::pair<float,float> const likeSignMassRange{1.82,1.91};
+
    //D0 candidate cut// Ultimate1
 //   float const dcaV0ToPv[nPtBins] = {0.0062, 0.0047, 0.0040, 0.0041, 0.0042};
 //   float const decayLength[nPtBins] = {0.0149, 0.0205, 0.0216, 0.0233, 0.0282};

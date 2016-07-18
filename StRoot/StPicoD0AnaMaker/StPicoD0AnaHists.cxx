@@ -16,6 +16,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "StPicoDstMaker/StPicoEvent.h"
+#include "StPicoDstMaker/StPicoTrack.h"
 #include "StPicoPrescales/StPicoPrescales.h"
 #include "StPicoCharmContainers/StKaonPion.h"
 #include "StAnaCuts.h"
@@ -26,8 +27,8 @@
 #include "StPicoD0AnaHists.h"
 
 //-----------------------------------------------------------------------
-StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFillQaHists(fillQaHists), mPrescales(NULL), mOutFile(NULL),
-   mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL),
+StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists, bool fillBackgroundTrees) : mFillQaHists(fillQaHists), mFillBackgroundTrees(fillBackgroundTrees),
+   mPrescales(NULL), mOutFile(NULL), mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL),
    mh1Cent(NULL), mh1CentWg(NULL), mh1gRefmultCor(NULL), mh1gRefmultCorWg(NULL), mh2CentVz(NULL), mh2CentVzWg(NULL), mh3InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLike(NULL), mh3InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLike(NULL)
    // mh2Tpc1PtCent(NULL),  mh2Tpc1PhiVz(NULL), mh2HFT1PtCent(NULL),  mh2HFT1PhiVz(NULL),  mh3DcaXyPtCent(NULL), mh3DcaZPtCent(NULL),
 {
@@ -86,6 +87,19 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
    mh3InvariantMassVsPtVsCentTof     = new TH3F("mh3InvariantMassVsPtVsCentTof", "invariantMassVsPtVsCentTof;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentTofLike = new TH3F("mh3InvariantMassVsPtVsCentTofLike", "invariantMassVsPtVsCentTofLike;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
 
+   if(mFillBackgroundTrees)
+   {
+     TString var = "m:pt:decayLength:dca12:dcaV0ToPv:ptKaon:dcaKaon:ptPion:dcaPion";
+
+     for(unsigned int iNt=0; iNt<anaCuts::nPtBins; ++iNt)
+     {
+       TString nameSS = Form("ntpD0BackgroundSameSignPt%i%i",(int)anaCuts::PtBinsEdge[iNt],(int)anaCuts::PtBinsEdge[iNt+1]);
+       TString nameSB = Form("ntpD0BackgroundSideBandPt%i%i",(int)anaCuts::PtBinsEdge[iNt],(int)anaCuts::PtBinsEdge[iNt+1]);
+       mNtD0BackgroungSameSign[iNt] = new TNtuple(nameSS.Data(),"",var.Data());
+       mNtD0BackgroungSideBand[iNt] = new TNtuple(nameSB.Data(),"",var.Data());
+     }
+   }
+
    /******************************************************************************************/
    /*             NOTE: All histograms below will not be defined if mFillQaHists is not true */
    /******************************************************************************************/
@@ -135,6 +149,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
    mh3DcaZPtCent  = new TH3F("mh3DcaZPtCent", "mh3DcaZPtCent;p_{T}(GeV/c);cent;DcaZ(cm)", 120, 0, 12, 10, -1.5, 8.5, 1000, -1, 1); //Dca 1.cm
 
 //  nt = new TNtuple("nt","nt","runnumber:dca:vz:pt:eta:phi:centrality:grefmultCor:zdcCoincidance:tofMatchFlag:hftMatchFlag");
+
 }
 StPicoD0AnaHists::~StPicoD0AnaHists()
 {
@@ -226,6 +241,15 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
       if (tpc) mh3InvariantMassVsPtVsCentLike->Fill(kp->pt(), centrality, kp->m(), reweight);
       if (tof) mh3InvariantMassVsPtVsCentTofLike->Fill(kp->pt(), centrality, kp->m(), reweight);
    }
+}
+//-----------------------------------------------------------------------
+void StPicoD0AnaHists::addBackground(StKaonPion const* const kp, StPicoTrack const* const kaon, StPicoTrack const* const pion, int const ptBin, bool const SB)
+{
+     if(mFillBackgroundTrees)
+     {
+       TNtuple* const nt = SB ? mNtD0BackgroungSideBand[ptBin]: mNtD0BackgroungSameSign[ptBin];
+       nt->Fill(kp->m(), kp->pt(), kp->decayLength(), kp->dcaDaughters(), kp->perpDcaToVtx(), kaon->gPt(), kp->kaonDca(), pion->gPt(), kp->pionDca());
+     }
 }
 //---------------------------------------------------------------------
 void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsPion, bool IsKaon, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX)
@@ -350,6 +374,15 @@ void StPicoD0AnaHists::closeFile()
    mh3InvariantMassVsPtVsCentLike->Write();
    mh3InvariantMassVsPtVsCentTof->Write();
    mh3InvariantMassVsPtVsCentTofLike->Write();
+
+   if(mFillBackgroundTrees)
+   {
+     for(unsigned int iNt=0; iNt<anaCuts::nPtBins; ++iNt)
+     {
+       mNtD0BackgroungSameSign[iNt]->Write();
+       mNtD0BackgroungSideBand[iNt]->Write();
+     }
+   }
 
    if (!mFillQaHists)
    {

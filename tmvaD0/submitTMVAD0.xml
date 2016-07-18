@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- Author: Mustafa Mustafa (mmustafa@lbl.gov) -->
+
+<job nProcesses = "5" simulateSubmission="false">
+
+  <stdout URL="file:./jobs/out/$JOBID.out" />
+  <stderr URL="file:./jobs/err/$JOBID.err" />
+                
+  <Generator>
+    <Location>./jobs/report/</Location>
+    <ScriptLocation>./jobs/csh/</ScriptLocation>
+    <ListLocation>./jobs/list/</ListLocation>
+  </Generator>
+                                                
+<command>
+starver SL16d
+
+cp /global/project/projectdirs/starprod/rnc/mustafa/Run14/AuAu/200GeV/Pico16a/P16id/analysis/D0/fastSim_tmvaTrees/D0_tmvaTree.toyMc.root $SCRATCH
+cp /global/project/projectdirs/starprod/rnc/mustafa/Run14/AuAu/200GeV/Pico16a/P16id/analysis/D0/production/backgroundTrees/D0_background.2016-07-08.root $SCRATCH
+
+root -l -b &lt;&lt;EOF
+  .L tmvaD0.C++
+  float const minPt = 0.3;
+  tmvaD0($JOBINDEX, minPt, "D0_tmvaTree.toyMc.root", "D0_background.2016-07-08.root")
+  .q
+EOF
+
+</command>
+
+<output fromScratch="tmvaD0_*.root" toURL="/global/project/projectdirs/starprod/rnc/mustafa/Run14/AuAu/200GeV/Pico16a/P16id/analysis/D0/cutsTunning/production/pass1/" />
+
+<SandBox installer="ZIP">
+  <Package name="LocalLibraries_pass1">
+    <File>file:./tmvaD0.C</File>
+    <File>file:./tmvaCuts.h</File>
+    <File>file:./tmvaglob.C</File>
+    <File>file:./TMVAGui.C</File>
+    <File>file:./submitTMVAD0.xml</File>
+  </Package>
+</SandBox>
+
+</job>

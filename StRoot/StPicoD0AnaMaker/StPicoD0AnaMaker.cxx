@@ -41,7 +41,7 @@ StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesLi
                                    TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
    StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
-   mChain(NULL), mEventCounter(0), mFillQaHists(false), mHists(NULL)
+   mChain(NULL), mEventCounter(0), mFillQaHists(false), mFillBackgroundTrees(false), mHists(NULL)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
@@ -68,8 +68,9 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->GetBranch("dEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
+   mOutFileBaseName = mOutFileBaseName.ReplaceAll(".root", "");
    // -------------- USER VARIABLES -------------------------
-   mHists = new StPicoD0AnaHists(mOutFileBaseName, mFillQaHists);
+   mHists = new StPicoD0AnaHists(mOutFileBaseName, mFillQaHists, mFillBackgroundTrees);
 
    return kStOK;
 }
@@ -195,7 +196,8 @@ Int_t StPicoD0AnaMaker::Make()
          {
             StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
-            if (!isGoodPair(kp)) continue;
+            bool goodPair = isGoodPair(kp);
+            if (!goodPair && !mFillBackgroundTrees) continue;
 
             StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
             StPicoTrack const* pion = picoDst->track(kp->pionIdx());
@@ -214,7 +216,22 @@ Int_t StPicoD0AnaMaker::Make()
 
             bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
 
-            mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+            if (goodPair) mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+
+            if (mFillBackgroundTrees && tof)
+            {
+               if (centrality < 0) continue;
+               int const ptBin = getD0PtIndex(kp);
+
+               if (unlike)
+               {
+                  if (kp->m() > anaCuts::likeSignMassRange.first && kp->m() < anaCuts::likeSignMassRange.second) mHists->addBackground(kp, kaon, pion, ptBin, false);
+               }
+               else if (isSideBand(kp->m()))
+               {
+                  mHists->addBackground(kp, kaon, pion, ptBin, true);
+               }
+            }
 
          } // end of kaonPion loop
       } // end of isGoodEvent
@@ -285,6 +302,14 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           kp->decayLength() > anaCuts::decayLength[tmpIndex] &&
           fabs(kp->lorentzVector().rapidity()) < anaCuts::RapidityCut &&
           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isSideBand(float const m) const
+{
+   if (m > anaCuts::sideBandMassRange0.first && m < anaCuts::sideBandMassRange0.second) return true;
+   if (m > anaCuts::sideBandMassRange1.first && m < anaCuts::sideBandMassRange1.second) return true;
+
+   return false;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
