@@ -43,7 +43,9 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 28. [Systematics of Ultimate Cuts II - Using Fast Sim](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-09-27-PWG.pdf), Mustafa, HF PWG, 2015-09-27  
 29. [R_AA of D<sup>0</sup> Meson in Au+Au Collisions at 200GeV](https://drupal.star.bnl.gov/STAR/files/GuannanX_DMesonQM15_V0.11_0.pdf), Guannan, QM15, 2015-10-28  
 30. [D<sup>0</sup> Spectra - Corrections Crosschecks](https://drupal.star.bnl.gov/STAR/system/files/2016Mar31_PWG_D0_status.pdf), Guannan, HF PWG, 2016-03-31
-31. [D<sup>0</sup> Production in Run14 P16id](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/P16idTest/2016-05-04.pdf), Mustafa, HF PWG, 2016-05-05
+31. [D<sup>0</sup> Production in Run14 P16id](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/P16idTest/2016-05-04.pdf), Mustafa, HF PWG, 2016-05-05  
+32. [KF/Minuit Vertex Fitters 
+Performance in P16id/P15ic](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2016-05-12.pdf), Mustafa, Offline Software Meeting, 2016-05-16
 
 - - -
 ### Preliminary results:

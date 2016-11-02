@@ -55,6 +55,8 @@ namespace kPiXAnaCuts
   struct TopologicalCuts
   {
     double xMassHypothesis;
+    float  minMass;
+    float  maxMass;
     float  rapidityCut;
     int    nPtBins;
     std::vector<float> ptBinsEdge;
@@ -67,6 +69,8 @@ namespace kPiXAnaCuts
     std::vector<float> xDca;
 
     TopologicalCuts(double xMassHypothesis,
+                    float  minMass,
+                    float  maxMass,
                     float  rapidityCut,
                     int    nPtBins,
                     std::vector<float> const& ptBinsEdge,
@@ -78,6 +82,8 @@ namespace kPiXAnaCuts
                     std::vector<float> const& pDca,
                     std::vector<float> const& xDca):
                     xMassHypothesis(xMassHypothesis),
+                    minMass(minMass),
+                    maxMass(maxMass),
                     rapidityCut(rapidityCut),
                     nPtBins(nPtBins),
                     ptBinsEdge(ptBinsEdge),
@@ -91,7 +97,7 @@ namespace kPiXAnaCuts
     {}
   };
 
-  TopologicalCuts DpmCuts(M_PION_PLUS,
+  TopologicalCuts const DpmCuts(M_PION_PLUS, 1.843, 1.898,
                           1.0,                                      // rapidity
                           5,                                        // nPtBins
                           {0.    , 1.,     2.,     3.,     5., 15.},// ptEdges
@@ -103,7 +109,7 @@ namespace kPiXAnaCuts
                           {0.0110, 0.0111, 0.0086, 0.0081, 0.0062}, // p1Dca
                           {0.0110, 0.0111, 0.0086, 0.0081, 0.0062});// p2Dca
 
-  TopologicalCuts  DsCuts(M_KAON_MINUS,
+  TopologicalCuts const DsCuts(M_KAON_MINUS, 1.940, 1.995,
                           1.0,                                      // rapidity
                           5,                                        // nPtBins
                           {0.    , 1.,     2.,     3.,     5., 15.},// ptEdges
@@ -115,18 +121,16 @@ namespace kPiXAnaCuts
                           {0.0110, 0.0111, 0.0086, 0.0081, 0.0062}, // pDca
                           {0.0103, 0.0091, 0.0095, 0.0079, 0.0058});// k2Dca
 
-  TopologicalCuts  LcCuts(M_PROTON,
+  TopologicalCuts const LcCuts(M_PROTON, 2.258, 2.308,
                           1.0,                                      // rapidity
                           5,                                        // nPtBins
                           {0.    , 1.,     2.,     3.,     5., 15.},// ptEdges
                           {0.0100, 0.0100, 0.0100, 0.0100, 0.0100}, // dcaV0ToPv
-                          {0.0080, 0.0080, 0.0080, 0.0080, 0.0080}, // decayLength
-                          {0.9900, 0.9900, 0.9900, 0.9900, 0.9900}, // cosTheta
-                          {0.0060, 0.0060, 0.0060, 0.0060, 0.0060}, // dcaDaughters
-                          {0.0070, 0.0070, 0.0070, 0.0070, 0.0070}, // k1Dca
-                          {0.0070, 0.0070, 0.0070, 0.0070, 0.0070}, // piDca
-                          {0.0070, 0.0070, 0.0070, 0.0070, 0.0070});// pDhca
-
-
+                          {0.0080, 0.0236, 0.0236, 0.0250, 0.0250}, // decayLength
+                          {0.9900, 0.9915, 0.9915, 0.9950, 0.9950}, // cosTheta
+                          {0.0060, 0.0086, 0.0086, 0.0050, 0.0050}, // dcaDaughters
+                          {0.0070, 0.0114, 0.0114, 0.0075, 0.0075}, // k1Dca
+                          {0.0070, 0.0076, 0.0076, 0.0080, 0.0080}, // piDca
+                          {0.0070, 0.0105, 0.0105, 0.0065, 0.0065});// pDhca
 }
 #endif

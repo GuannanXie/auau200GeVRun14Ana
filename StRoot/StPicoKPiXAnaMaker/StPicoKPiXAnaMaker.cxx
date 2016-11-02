@@ -14,6 +14,8 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <set>
+#include <vector>
 
 #include "TFile.h"
 #include "TClonesArray.h"
@@ -45,7 +47,7 @@ StPicoKPiXAnaMaker::StPicoKPiXAnaMaker(char const * name, TString const inputFil
                                        StMaker(name), mEventCounter(0), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr),
                                        mGRefMultCorrUtil(grefmultCorrUtil), mChain(nullptr),
                                        mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
-                                       mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false),
+                                       mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false), mFillTopoDistHistograms(false),
                                        mDpmHists(nullptr), mDsHists(nullptr), mLcHists(nullptr)
 
 {}
@@ -74,9 +76,9 @@ Int_t StPicoKPiXAnaMaker::Init()
    mChain->GetBranch("kPiXEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("kPiXEvent", &mPicoKPiXEvent);
 
-   if(mFillDpmHists) mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName);
-   if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName);
-   if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName);
+   if(mFillDpmHists) mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
+   if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
+   if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
 
    return kStOK;
 }
@@ -143,6 +145,7 @@ Int_t StPicoKPiXAnaMaker::Make()
      if(mFillLcHists)  mLcHists->addEventBeforeCut(*(picoDst->event()));
 
      StThreeVectorF pVtx = picoDst->event()->primaryVertex();
+     std::set<std::vector<int>> usedTriplet;
      if (isGoodEvent(picoDst->event(),pVtx))
      {
        TClonesArray const* aKaonPionXaon = mPicoKPiXEvent->kaonPionXaonArray();
@@ -172,47 +175,98 @@ Int_t StPicoKPiXAnaMaker::Make()
              !isGoodTrack(pion, pVtx) ||
              !isGoodTrack(xaon, pVtx)) continue;
 
+         auto search = usedTriplet.find({kpx->kaonIdx(),kpx->pionIdx(),kpx->xaonIdx()});
+         if(search == usedTriplet.end())
+         {
+           usedTriplet.insert({kpx->kaonIdx(),kpx->pionIdx(),kpx->xaonIdx()});
+         }
+         else continue;
+
          // Kaon Pion PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
          float pBeta = getTofBeta(pion, pVtx);
          float kBeta = getTofBeta(kaon, pVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         bool tof = tofPion && tofKaon;
+         bool hybridPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;
+         bool hybridKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;
 
-         if(!tof) continue;
+         if(!hybridPion || !hybridKaon) continue;
+
+         //xaon tof
+         float xaonBeta = getTofBeta(xaon, pVtx);
+         bool xaonTofAvailable = !isnan(xaonBeta) && xaonBeta > 0;
 
          // D+-
-         if(mFillDpmHists && isTpcPion(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+         if(mFillDpmHists)
          {
-           bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
-           mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+           search = usedTriplet.find({kpx->kaonIdx(), kpx->xaonIdx(), kpx->pionIdx()});
+
+           if(search == usedTriplet.end())
+           {
+             bool hybridXaonPion = xaonTofAvailable ? isTofPion(xaon, xaonBeta, pVtx) : isTpcPion(xaon);
+
+             if(hybridXaonPion)
+             {
+               bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
+
+               if(isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+               {
+                 mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+               }
+
+               if(mFillTopoDistHistograms)
+               {
+                 mDpmHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DpmCuts);
+               }
+             }
+           }
          }
 
          // Ds
-         if(mFillDsHists && isTpcKaon(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
+         if(mFillDsHists)
          {
-           double mass = kpx->kaonXaonFourMom(M_KAON_PLUS).m();
-           if(mass < 0.98 || mass > 1.08) continue;
+           bool hybridXaonKaon = xaonTofAvailable ? isTofKaon(xaon, xaonBeta, pVtx) : isTpcKaon(xaon);
 
-           bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
-           mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
+           if(hybridXaonKaon)
+           {
+             double mass = kpx->kaonXaonFourMom(M_KAON_PLUS).m();
+             if(mass < 0.98 || mass > 1.08) continue;
+
+             bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
+
+             if(isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
+             {
+               mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
+             }
+
+             if(mFillTopoDistHistograms)
+             {
+               mDsHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DsCuts);
+             }
+           }
          }
 
-         // Proton PID
-         if(!isTpcProton(xaon)) continue;
-         float protonBeta = getTofBeta(xaon, pVtx);
-         bool protonTofAvailable = !isnan(protonBeta) && protonBeta > 0;
-         bool tofProton = protonTofAvailable ? isTofProton(xaon, protonBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         if(!tofProton) continue;
-
          // Λc
-         if(mFillLcHists && isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+         if(mFillLcHists)
          {
-           bool fg = (pion->charge() == xaon->charge()) && (kaon->charge() != xaon->charge()) ; //  Λc+- --> K-+ π+- p+-
-           mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+           bool tofXaonProton = xaonTofAvailable && isTofProton(xaon, xaonBeta, pVtx) && isTpcProton(xaon);
+           bool tofKaon = kTofAvailable && isTofKaon(kaon, kBeta, pVtx);
+
+           if(tofKaon && tofXaonProton)
+           {
+             bool fg = (pion->charge() == xaon->charge()) && (kaon->charge() != xaon->charge()) ; //  Λc+- --> K-+ π+- p+-
+
+             if(isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+             {
+               mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+             }
+
+             if(mFillTopoDistHistograms)
+             {
+               mLcHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::LcCuts);
+             }
+           }
          }
 
        } // kaonPionXaon loop
@@ -357,7 +411,7 @@ bool StPicoKPiXAnaMaker::isGoodKPiX(StPicoKPiX const* const kpx, kPiXAnaCuts::To
   return cos(kpx->pointingAngle()) > cuts.cosTheta[tmpIndex] &&
          kpx->pionDca() > cuts.pDca[tmpIndex] &&
          kpx->kaonDca() > cuts.kDca[tmpIndex] &&
-         kpx->xaonDca() > cuts.pDca[tmpIndex] &&
+         kpx->xaonDca() > cuts.xDca[tmpIndex] &&
          kpx->dcaDaughters() < cuts.dcaDaughters[tmpIndex] &&
          kpx->decayLength() > cuts.decayLength[tmpIndex] &&
          fabs(fMom.rapidity()) < cuts.rapidityCut &&

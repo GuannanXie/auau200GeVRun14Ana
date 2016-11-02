@@ -48,6 +48,7 @@ class StPicoKPiXAnaMaker : public StMaker
     void fillDpmHists(bool b=true);
     void fillDsHists(bool b=true);
     void fillLcHists(bool b=true);
+    void fillTopoDistHistograms(bool b=true);
 
   private:
     StPicoKPiXAnaMaker() {}
@@ -78,6 +79,7 @@ class StPicoKPiXAnaMaker : public StMaker
     bool mFillDpmHists;
     bool mFillDsHists;
     bool mFillLcHists;
+    bool mFillTopoDistHistograms;
 
     StPicoCharmMassHists* mDpmHists;
     StPicoCharmMassHists* mDsHists;
@@ -94,6 +96,7 @@ inline int StPicoKPiXAnaMaker::getEntries() const
 inline void StPicoKPiXAnaMaker::fillDpmHists(bool b) { mFillDpmHists = b; }
 inline void StPicoKPiXAnaMaker::fillDsHists(bool b)  { mFillDsHists = b; }
 inline void StPicoKPiXAnaMaker::fillLcHists(bool b)  { mFillLcHists = b; }
+inline void StPicoKPiXAnaMaker::fillTopoDistHistograms(bool b) { mFillTopoDistHistograms = b;}
 inline void StPicoKPiXAnaMaker::readNextEvent()
 {
   mChain->GetEntry(mEventCounter++);
