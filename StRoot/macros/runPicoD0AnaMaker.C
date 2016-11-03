@@ -30,7 +30,7 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Exec(command.Data());
   command = "sed -i 's/Pico16a/physics2/g' correspondingPico.list";
   gSystem->Exec(command.Data());
-  command = "sed -i 's/D0//g' correspondingPico.list";
+  command = "sed -i 's/\\\/D0//g' correspondingPico.list";
   gSystem->Exec(command.Data());
 
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
@@ -41,9 +41,6 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   picoD0AnaMaker->fillQaHistograms(false);
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
-  for(Int_t i=0;i<6;i++){
-    cout << i << " " << grefmultCorrUtil->get(i, 0) << endl;
-  }
 
   // -------------- USER variables -------------------------
 
