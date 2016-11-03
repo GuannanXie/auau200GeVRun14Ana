@@ -182,6 +182,14 @@ Int_t StPicoD0AnaMaker::Make()
                bool goodProton = (pTofAvailable && tofProton && tpcProton) || (!pTofAvailable && tpcProton);
                // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
 
+               // cout<<"mem.Used() = " << mem.Used()<<endl;
+               // cout<<"mem.Free() = " << mem.Free()<<endl;
+               // cout<<"mem.ProgSize() = " << mem.ProgSize()<<endl;
+
+               // bool goodPion = piTofAvailable && tofPion && tpcPion;//strict Pion pid
+               // bool goodKaon = kTofAvailable && tofKaon && tpcKaon;//strict Kaon pid
+               // bool goodProton = pTofAvailable && tofProton && tpcProton;//strict Proton pid
+
                if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon || goodProton))
                {
                   mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, goodProton, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
