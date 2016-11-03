@@ -48,7 +48,7 @@ namespace anaCuts
    float const Eta = 1.0;
    //pions
    float const nSigmaPion = 3.0;
-   float const pTofBetaDiff = 0.03;
+   float const piTofBetaDiff = 0.03;
 
    //kaons
    float const nSigmaKaon = 2.0;

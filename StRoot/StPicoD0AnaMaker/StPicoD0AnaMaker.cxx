@@ -166,14 +166,14 @@ Int_t StPicoD0AnaMaker::Make()
 
                bool tpcPion = isTpcPion(trk);
                bool tpcKaon = isTpcKaon(trk);
-               float pBeta = getTofBeta(trk, pVtx);
-               float kBeta = pBeta;
-               bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+               float piBeta = getTofBeta(trk, pVtx);
+               float kBeta = piBeta;
+               bool piTofAvailable = !isnan(piBeta) && piBeta > 0;
                bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-               bool tofPion = isTofPion(trk, pBeta, pVtx);
+               bool tofPion = isTofPion(trk, piBeta, pVtx);
                bool tofKaon = isTofKaon(trk, kBeta, pVtx);
 
-               bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
+               bool goodPion = (piTofAvailable && tofPion && tpcPion) || (!piTofAvailable && tpcPion);//Always require TPC
                bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
                // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
 
@@ -206,11 +206,11 @@ Int_t StPicoD0AnaMaker::Make()
 
             // PID
             if (!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
-            float pBeta = getTofBeta(pion, pVtx);
+            float piBeta = getTofBeta(pion, pVtx);
             float kBeta = getTofBeta(kaon, pVtx);
-            bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+            bool piTofAvailable = !isnan(piBeta) && piBeta > 0;
             bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-            bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
+            bool tofPion = piTofAvailable ? isTofPion(pion, piBeta, pVtx) : true;//this is bybrid pid, not always require tof
             bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
             bool tof = tofPion && tofKaon;
 
@@ -334,7 +334,7 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThr
    {
       double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
-      tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
+      tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::piTofBetaDiff ? true : false;
    }
 
    return tofPion;
