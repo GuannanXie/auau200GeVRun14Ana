@@ -38,7 +38,8 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   // StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
   // StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil, eventPlaneMaker);
   StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil);
-  picoD0AnaMaker->fillQaHistograms(false);
+  // picoD0AnaMaker->fillQaHistograms(false);
+  picoD0AnaMaker->fillQaHistograms(true);
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14_P16id.txt");
 
