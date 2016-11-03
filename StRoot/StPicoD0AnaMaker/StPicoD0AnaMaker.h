@@ -52,8 +52,10 @@ private:
     bool isGoodTrack(StPicoTrack const*, StThreeVectorF const&) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;
+    bool isTpcProton(StPicoTrack const*) const;
     bool isTofPion(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isTofKaon(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
+    bool isTofProton(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isGoodPair(StKaonPion const*) const;
     bool isSideBand(float m) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const& vtx) const;

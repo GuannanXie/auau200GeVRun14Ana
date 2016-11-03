@@ -54,6 +54,10 @@ namespace anaCuts
    float const nSigmaKaon = 2.0;
    float const kTofBetaDiff = 0.03;
 
+   //kaons
+   float const nSigmaProton = 2.0;
+   float const pTofBetaDiff = 0.03;
+
    float const RapidityCut = 1.0;
    //D0 candidate cut// Ultimate2
    float const dcaV0ToPv[nPtBins] = {0.0061, 0.0049, 0.0038, 0.0038, 0.0040};
@@ -77,8 +81,10 @@ namespace anaCuts
 //   float const pDca[nPtBins] = {0.0109, 0.0108, 0.0100, 0.0074, 0.0067};//0.008
 
    //next are mostly for QA parts, Dca and HFT ratio
-   int const nParticles=2;
-   char const ParticleName[nParticles][256]={"Pion","Kaon"};
+   // int const nParticles=2;
+   // char const ParticleName[nParticles][256]={"Pion","Kaon"};
+   int const nParticles=3;
+   char const ParticleName[nParticles][256]={"Pion","Kaon","Proton"};
 
    int const nEtasDca = 5;
    float const EtaEdgeDca[nEtasDca + 1] = { -1.0, -0.6, -0.2, 0.2, 0.6, 1.0};

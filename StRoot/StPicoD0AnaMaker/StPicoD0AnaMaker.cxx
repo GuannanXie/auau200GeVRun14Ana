@@ -166,28 +166,33 @@ Int_t StPicoD0AnaMaker::Make()
 
                bool tpcPion = isTpcPion(trk);
                bool tpcKaon = isTpcKaon(trk);
+               bool tpcProton = isTpcProton(trk);
                float piBeta = getTofBeta(trk, pVtx);
                float kBeta = piBeta;
+               float pBeta = piBeta;
                bool piTofAvailable = !isnan(piBeta) && piBeta > 0;
                bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+               bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
                bool tofPion = isTofPion(trk, piBeta, pVtx);
                bool tofKaon = isTofKaon(trk, kBeta, pVtx);
+               bool tofProton = isTofProton(trk, pBeta, pVtx);
 
                bool goodPion = (piTofAvailable && tofPion && tpcPion) || (!piTofAvailable && tpcPion);//Always require TPC
                bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
+               bool goodProton = (pTofAvailable && tofProton && tpcProton) || (!pTofAvailable && tpcProton);
                // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
 
-               if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon))
+               if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon || goodProton))
                {
-                  mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
+                  mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, goodProton, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
                }
-               if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon))
+               if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon || goodProton))
                {
-                  mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
+                  mHists->addTpcDenom1(goodPion, goodKaon, goodProton, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
                }
-               if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
+               if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon || goodProton) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
                {
-                  mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
+                  mHists->addHFTNumer1(goodPion, goodKaon, goodProton, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
                }
             } // .. end tracks loop
          }
@@ -293,6 +298,11 @@ bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const* const trk) const
    return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
 }
 //-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isTpcProton(StPicoTrack const* const trk) const
+{
+   return fabs(trk->nSigmaProton()) < anaCuts::nSigmaProton;
+}
+//-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
    int tmpIndex = getD0PtIndex(kp);
@@ -338,6 +348,20 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThr
    }
 
    return tofPion;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isTofProton(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
+{
+   bool tofProton = false;
+
+   if (beta > 0)
+   {
+      double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
+      float beta_p = ptot / sqrt(ptot * ptot + M_PROTON * M_PROTON);
+      tofProton = fabs(1 / beta - 1 / beta_p) < anaCuts::pTofBetaDiff ? true : false;
+   }
+
+   return tofProton;
 }
 //-----------------------------------------------------------------------------
 float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const& vtx) const

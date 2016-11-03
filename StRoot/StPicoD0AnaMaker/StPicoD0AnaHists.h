@@ -37,10 +37,10 @@ class StPicoD0AnaHists
    void addCent(const double refmultCor, int centrality, const double reweight, const float vz);
    void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
    void addBackground(StKaonPion const*, StPicoTrack const* kaon, StPicoTrack const* pion, int ptBin, bool SB);
-   void addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
-   void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
+   void addTpcDenom1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
+   void addHFTNumer1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addQaNtuple(int, float, float, float, float, float, int, const double, float, int, int);
-   void addDcaPtCent(float dca, float dcaXy, float  dcaZ, bool IsPion, bool IsKaon, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX);
+   void addDcaPtCent(float dca, float dcaXy, float  dcaZ, bool IsPion, bool IsKaon, bool IsProton, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX);
    int getEtaIndexDca(float Eta) ;
    int getPhiIndexDca(float Phi) ;
    int getVzIndexDca(float Vz) ;

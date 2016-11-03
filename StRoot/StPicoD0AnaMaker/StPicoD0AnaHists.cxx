@@ -180,7 +180,7 @@ void StPicoD0AnaHists::addCent(const double refmultCor, int centrality, const do
    mh2CentVzWg->Fill(centrality, vz, reweight);
 }
 //-----------------------------------------------------------------------
-void StPicoD0AnaHists::addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
+void StPicoD0AnaHists::addTpcDenom1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
    if (!mFillQaHists)
    {
@@ -198,12 +198,16 @@ void StPicoD0AnaHists::addTpcDenom1(bool IsPion, bool IsKaon, float pt, int cent
    {
       mh2Tpc1PtCentPartEtaVzPhi[1][EtaIndex][VzIndex][PhiIndex]->Fill(pt, centrality);
    }
+   if (IsProton)
+   {
+      mh2Tpc1PtCentPartEtaVzPhi[2][EtaIndex][VzIndex][PhiIndex]->Fill(pt, centrality);
+   }
    mh2Tpc1PtCent->Fill(pt, centrality);
    if (fabs(Eta) < 0.1 && pt > 3.0) mh2Tpc1PhiVz->Fill(Phi, Vz);
 
 }
 //-----------------------------------------------------------------------
-void StPicoD0AnaHists::addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
+void StPicoD0AnaHists::addHFTNumer1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
    if (!mFillQaHists)
    {
@@ -220,6 +224,10 @@ void StPicoD0AnaHists::addHFTNumer1(bool IsPion, bool IsKaon, float pt, int cent
    if (IsKaon)
    {
       mh2HFT1PtCentPartEtaVzPhi[1][EtaIndex][VzIndex][PhiIndex]->Fill(pt, centrality);
+   }
+   if (IsProton)
+   {
+      mh2HFT1PtCentPartEtaVzPhi[2][EtaIndex][VzIndex][PhiIndex]->Fill(pt, centrality);
    }
    mh2HFT1PtCent->Fill(pt, centrality);
    if (fabs(Eta) < 0.1 && pt > 3.0) mh2HFT1PhiVz->Fill(Phi, Vz);
@@ -252,7 +260,7 @@ void StPicoD0AnaHists::addBackground(StKaonPion const* const kp, StPicoTrack con
      }
 }
 //---------------------------------------------------------------------
-void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsPion, bool IsKaon, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX)
+void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsPion, bool IsKaon, bool IsProton, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
    if (!mFillQaHists)
    {
@@ -272,6 +280,10 @@ void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsP
    if (IsKaon)
    {
       mh3DcaXyZPtCentPartEtaVzPhi[1][EtaIndex][VzIndex][centrality]->Fill(pt, dcaXy, dcaZ);
+   }
+   if (IsProton)
+   {
+      mh3DcaXyZPtCentPartEtaVzPhi[2][EtaIndex][VzIndex][centrality]->Fill(pt, dcaXy, dcaZ);
    }
    mh3DcaPtCent->Fill(pt, centrality, dca);
    mh3DcaXyPtCent->Fill(pt, centrality, dcaXy);
