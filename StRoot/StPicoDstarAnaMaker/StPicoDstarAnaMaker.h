@@ -19,7 +19,7 @@ class TString;
 class TFile;
 class TNtuple;
 class StPicoEvent;
-class StPicoDstarEvent;
+class StPicoD0Event;
 class StKaonPion;
 class StPicoTrack;
 class StPicoDstMaker;
@@ -45,7 +45,7 @@ private:
    StPicoDstarAnaMaker() {}
    void readNextEvent();
 
-    int  getDstarPtIndex(StKaonPion const* ) const;
+    int  getD0PtIndex(StKaonPion const* ) const;
     bool isGoodTrigger(StPicoEvent const*) const;
     bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
     bool isGoodQaTrack(StPicoTrack const* ,StThreeVectorF const& momentum ,double dca) const;
@@ -62,7 +62,7 @@ private:
     int trkHalf(StPicoTrack const*, StThreeVectorF const& vtx) const;
 
    StPicoDstMaker* mPicoDstMaker;
-   StPicoDstarEvent* mPicoDstarEvent;
+   StPicoD0Event* mPicoD0Event;
    StRefMultCorr* mGRefMultCorrUtil;
 
     TString mInputFilesList;
