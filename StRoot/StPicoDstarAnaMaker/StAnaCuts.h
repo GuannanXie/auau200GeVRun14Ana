@@ -44,6 +44,7 @@ namespace anaCuts
 
    float const minPt = 0.3;//1.2
    int const nHitsFit = 20;
+   float const minSoftPt = 0.2; //0.2;//1.2
 
    //track eta cut
    float const Eta = 1.0;
