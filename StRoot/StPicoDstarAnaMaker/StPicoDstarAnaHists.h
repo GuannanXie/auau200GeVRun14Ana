@@ -24,6 +24,7 @@ class StPicoPrescales;
 class StPicoEvent;
 class StPicoTrack;
 class StKaonPion;
+class StD0SoftPion;
 class TNtuple;
 
 
@@ -35,7 +36,7 @@ class StPicoDstarAnaHists
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor, int centrality, const double reweight, const float vz);
-   void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
+   void addD0SoftPion(StD0SoftPion const, StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
    void addBackground(StKaonPion const*, StPicoTrack const* kaon, StPicoTrack const* pion, int ptBin, bool SB);
    void addTpcDenom1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addHFTNumer1(bool IsPion, bool IsKaon, bool IsProton, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
