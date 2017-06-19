@@ -21,6 +21,7 @@ class TNtuple;
 class StPicoEvent;
 class StPicoD0Event;
 class StKaonPion;
+class StD0SoftPion;
 class StPicoTrack;
 class StPicoDstMaker;
 class StPicoDstarAnaHists;
@@ -49,6 +50,7 @@ private:
     bool isGoodTrigger(StPicoEvent const*) const;
     bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
     bool isGoodQaTrack(StPicoTrack const* ,StThreeVectorF const& momentum ,double dca) const;
+    bool isGoodSoftPionTrack(StPicoTrack const* ,StThreeVectorF const& momentum ,double dca) const;
     bool isGoodTrack(StPicoTrack const*, StThreeVectorF const&) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;

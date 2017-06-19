@@ -28,6 +28,7 @@
 #include "StPicoDstMaker/StPicoTrack.h"
 #include "StPicoCharmContainers/StPicoD0Event.h"
 #include "StPicoCharmContainers/StKaonPion.h"
+#include "StPicoCharmContainers/StD0SoftPion.h"
 #include "StPicoDstarAnaMaker.h"
 #include "StPicoDstarAnaHists.h"
 #include "StAnaCuts.h"
@@ -226,25 +227,59 @@ Int_t StPicoDstarAnaMaker::Make()
             bool tofPion = piTofAvailable ? isTofPion(pion, piBeta, pVtx) : true;//this is bybrid pid, not always require tof
             bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
             bool tof = tofPion && tofKaon;
+            if(!tof) continue;
 
-            bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+            bool unlikeD0 = kaon->charge() * pion->charge() < 0 ? true : false;
 
-            if (goodPair) mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+            if (!goodPair) continue;
+            if (!unlikeD0) continue;
+            if ( (kp->m()<1.82) || (kp->m()>1.92) ) continue;
 
-            if (mFillBackgroundTrees && tof)
+            for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
             {
-               if (centrality < 0) continue;
-               int const ptBin = getD0PtIndex(kp);
+               StPicoTrack const* sptrk = picoDst->track(iTrack);
+               if (!sptrk) continue;
+               StPhysicalHelixD sphelix = sptrk->helix();
+               float spdca = float(sphelix.geometricSignedDistance(pVtx));
+               StThreeVectorF spmomentum = sptrk->gMom(pVtx, picoDst->event()->bField());//global momentum
+               // StThreeVectorF spmomentum = sptrk->pMom();//primary momentum
 
-               if (unlike)
-               {
-                  if (kp->m() > anaCuts::likeSignMassRange.first && kp->m() < anaCuts::likeSignMassRange.second) mHists->addBackground(kp, kaon, pion, ptBin, false);
-               }
-               else if (isSideBand(kp->m()))
-               {
-                  mHists->addBackground(kp, kaon, pion, ptBin, true);
-               }
+               if (!isGoodSoftPionTrack(sptrk, spmomentum, spdca)) continue;
+               if (fabs(spdca)>1.0) continue;
+               
+               if (!isTpcPion(sptrk)) continue;
+               float spBeta = getTofBeta(sptrk, pVtx);
+               bool spTofAvailable = !isnan(spBeta) && spBeta > 0;
+               bool tofSoftPion = spTofAvailable ? isTofPion(sptrk, spBeta, pVtx) : true;//this is bybrid pid, not always require tof
+               if(!tofSoftPion) continue;
+
+               if((kp->kaonIdx() == iTrack) || (kp->pionIdx() == iTrack)) continue;
+
+               StD0SoftPion const D0SoftPion(kp, sptrk, kp->kaonIdx(), kp->pionIdx(), iTrack, pVtx, picoDst->event()->bField());
+
+               bool unlikeDstar = pion->charge() * sptrk->charge() > 0 ? true : false;
+
+               if( (kp->pt()/spmomentum.perp()) < 10 || (kp->pt()/spmomentum.perp()) > 20) continue;
+
+               mHists->addD0SoftPion(D0SoftPion, kp, unlikeDstar, true, true, centrality, reweight);
             }
+
+            // if (goodPair) mHists->addKaonPion(kp, unlikeD0, true, tof, centrality, reweight);
+
+            // if (mFillBackgroundTrees && tof)
+            // {
+            //    if (centrality < 0) continue;
+            //    int const ptBin = getD0PtIndex(kp);
+            //
+            //    if (unlike)
+            //    {
+            //       if (kp->m() > anaCuts::likeSignMassRange.first && kp->m() < anaCuts::likeSignMassRange.second) mHists->addBackground(kp, kaon, pion, ptBin, false);
+            //    }
+            //    else if (isSideBand(kp->m()))
+            //    {
+            //       mHists->addBackground(kp, kaon, pion, ptBin, true);
+            //    }
+            // }
 
          } // end of kaonPion loop
       } // end of isGoodEvent
@@ -281,6 +316,14 @@ bool StPicoDstarAnaMaker::isGoodTrigger(StPicoEvent const* const picoEvent) cons
    return false;
 }
 //-----------------------------------------------------------------------------
+bool StPicoDstarAnaMaker::isGoodSoftPionTrack(StPicoTrack const* const trk, StThreeVectorF const& momentum, double const dca) const
+{
+   // return trk->gPt() > anaCuts::minSoftPt&& 
+   return momentum.perp() > anaCuts::minSoftPt&& 
+     trk->nHitsFit() >= anaCuts::nHitsFit&& 
+     fabs(momentum.pseudoRapidity()) <= anaCuts::Eta;
+}
+//-----------------------------------------------------------------------------
 bool StPicoDstarAnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const& momentum, double const dca) const
 {
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit && fabs(momentum.pseudoRapidity()) <= anaCuts::Eta;
@@ -315,6 +358,7 @@ bool StPicoDstarAnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
    int tmpIndex = getD0PtIndex(kp);
    return cos(kp->pointingAngle()) > anaCuts::cosTheta[tmpIndex] &&
+          // kp->cosThetaStar() < 0.8 && 
           kp->pionDca() > anaCuts::pDca[tmpIndex] && kp->kaonDca() > anaCuts::kDca[tmpIndex] &&
           kp->dcaDaughters() < anaCuts::dcaDaughters[tmpIndex] &&
           kp->decayLength() > anaCuts::decayLength[tmpIndex] &&
