@@ -44,8 +44,11 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 29. [R_AA of D<sup>0</sup> Meson in Au+Au Collisions at 200GeV](https://drupal.star.bnl.gov/STAR/files/GuannanX_DMesonQM15_V0.11_0.pdf), Guannan, QM15, 2015-10-28  
 30. [D<sup>0</sup> Spectra - Corrections Crosschecks](https://drupal.star.bnl.gov/STAR/system/files/2016Mar31_PWG_D0_status.pdf), Guannan, HF PWG, 2016-03-31
 31. [D<sup>0</sup> Production in Run14 P16id](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/P16idTest/2016-05-04.pdf), Mustafa, HF PWG, 2016-05-05  
-32. [KF/Minuit Vertex Fitters 
-Performance in P16id/P15ic](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2016-05-12.pdf), Mustafa, Offline Software Meeting, 2016-05-16
+32. [KF/Minuit Vertex Fitters Performance in P16id/P15ic](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2016-05-12.pdf), Mustafa, Offline Software Meeting, 2016-05-16
+33. [Update on the D0 and LambdaC](https://drupal.star.bnl.gov/STAR/system/files/2017Jan12_UpdateD0Lc_HFPWG.pdf), Guannan, HF PWG, 2017-01-12
+34. [Update sys. on the D0 and LambdaC](https://drupal.star.bnl.gov/STAR/system/files/2017Jan26_UpdateD0Lc_HFPWG.pdf), Guannan, HF PWG, 2017-01-27
+35. [Total Charm Cross Section study](https://drupal.star.bnl.gov/STAR/system/files/charmCrossSection_v2.pdf), Xiaolong, HF PWG, 2017-08-03
+36. [Re-tune cuts for Run14 D0](http://portal.nersc.gov/project/star/xlchen/D0_Summary/D0_reTune/D0_reTune.pdf), Xiaolong, HF PWG, 2017-09-14
 
 - - -
 ### Preliminary results:
